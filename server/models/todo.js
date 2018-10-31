@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 var Todo = mongoose.model('Todo', {
     text: {
         type: String,
@@ -24,13 +26,17 @@ var Todo = mongoose.model('Todo', {
 // }).catch(function (err) {
 //     console.log(err);
 
-var cookFood = new Todo({
-    text: 'Cook Rice and Beans'
-});
+// var cookFood = new Todo({
+//     text: 'Cook Rice and Beans'
+// });
 
-cookFood.save().then(function (document) {
-   console.log(JSON.stringify(document, null, 2)); 
-}).catch(function (err) {
-    console.log(err);
-});
+// cookFood.save().then(function (document) {
+//    console.log(JSON.stringify(document, null, 2)); 
+// }).catch(function (err) {
+//     console.log(err);
+// });
 
+
+module.exports = {
+    Todo: Todo
+};
