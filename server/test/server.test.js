@@ -6,6 +6,7 @@ const {Todo} = require('./../models/todo');
 
 //this should run before the set of test cases in the describe block
 //What this should do is to delete all contents of the data base.
+//this executes before any it() in program.
 beforeEach(function (done) {
     Todo.remove({}).then(function () {
         done();
@@ -42,6 +43,24 @@ describe('POST /todos', function () {
                 });
             });
     });
-}
 
+    it('should not create todo with invalid body data', function (done) {
+        request(app)
+            .post('/todos')
+            .send()
+            .expect(400)
+            .end(function (err, res) {
+                if(err){
+                    return done(err);
+                }
+
+                Todo.find().then(function (todos) {
+                    expect(todos.length).toBe();
+                    done();
+                }).catch(function (err) {
+                    done(err);
+                });
+            });
+    });
+}
 );
