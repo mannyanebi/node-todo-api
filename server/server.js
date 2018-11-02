@@ -37,6 +37,7 @@ app.get('/todos', function (req, res) {
     });
 });
 
+//this gets/ fetches data from the database on the /todos route using the id parameter
 app.get('/todos/:id', function (req, res) {
     let id = req.params.id;
 
@@ -54,6 +55,25 @@ app.get('/todos/:id', function (req, res) {
         });
     }).catch((err) => {
         res.status(400).send();
+    });
+});
+
+//this deletes/ removes documents from the database on the /todos route using the id parameter
+app.delete('/todos/:id', function (req, res) {
+    let id =  req.params.id;
+    
+    //validating the id
+    if(!ObjectID.isValid(id)){
+        return res.status(400).send();
+    }
+
+    Todo.findByIdAndRemove(id).then(function (doc) {
+        if(!doc){
+            res.status(404).send();
+        }
+        res.status(200).send(doc);
+    }).catch(function (err) {
+        res.send(404).send();
     });
 });
 
