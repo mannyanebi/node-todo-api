@@ -158,3 +158,51 @@ describe('GET /todos/:id', function () {
             .end(done);
     });
 });
+
+describe('PATCH /todos/:id', function () {
+    it('should update the todo', function (done) {
+        let hexID = todos[0]._id.toHexString();
+        let text = 'Testing Update as Patch';
+        
+        request(app)
+            .patch(`/todos/${hexID}`)
+            .send({
+                text: text,
+                completed: true
+            })
+            .expect(200)
+            .expect(function (response) {
+                expect(response.body.todo.text).toBe(text);
+                expect(response.body.todo.completedAt).toBeA('number');
+            })
+            .end(function (err, res) {
+                if(err){
+                    done(err);
+                }
+                done();
+            });
+    });
+
+    it('should clear completedAt when todo is not completed', function (done) {
+        let hexID = todos[1]._id.toHexString();
+        let text = 'Testing Update as Patch, Do you Believe';
+        request(app)
+            .patch(`/todos/${hexID}`)
+            .send({
+                text: text,
+                completed: false
+            })
+            .expect(200)
+            .expect(function (response) {
+                expect(response.body.todo.text).toBe(text);
+                expect(response.body.todo.completed).toBe(false);
+                expect(response.body.todo.completedAt).toNotExist();
+            })
+            .end(function (err, res) {
+                if(err){
+                    done(err);
+                }
+                done();
+            });
+    });
+});
