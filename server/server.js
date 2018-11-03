@@ -26,7 +26,8 @@ const PORT =  process.env.PORT;
 
 app.use(BodyParser.json());
 
-//this sends data to the database
+//this sends todo data to the database 
+//creating a new todo with only a text property
 app.post('/todos', function (req, res) {
     let todo = new Todo({
         text: req.body.text
@@ -122,6 +123,20 @@ app.patch('/todos/:id', function (req, res) {
          });
 });
 
+app.post('/users', function (req, res) {
+   let body = _.pick(req.body, ['email', 'password']);
+
+   let user = new User({
+        email: body.email,
+        password: body.password
+    });
+
+   user.save().then(function (user) {
+       res.send(user);
+   }).catch(function (err) {
+       res.status(400).send(err);
+   });
+});
 
 app.listen(PORT, function () {
     console.log('Listening on port: ', PORT);
