@@ -34,13 +34,21 @@ var UserSchema = new mongoose.Schema({
     }]
 });
 
+//overriding the toJSON method that executes
+//res.send() so that instead of the whole document properties
+//we will use _.pick to select necessary properties to send back 
+//to client
 UserSchema.methods.toJSON = function () {
     let user = this;
     let userObject = user.toObject();
 
     return _.pick(userObject, ['_id', 'email']);
-}
+};
 
+//creating a method in the methods object to 
+//generate and hash an authentication key
+//save it to the database
+//then returns the token
 UserSchema.methods.generateAuthToken = function () {
     let user = this;
     let access = 'auth';
@@ -56,6 +64,25 @@ UserSchema.methods.generateAuthToken = function () {
 
     return user.save().then(function () {
         return token;
+    });
+};
+
+UserSchema.statics.findByToken =  function (token) {
+    let User = this;
+    let decoded;
+
+    try {
+        decoded = JWT.verify(token, 'Yeshua');
+    } catch (err) {
+        return new Promise(function (resolve, reject) {
+            reject('Invalid Signature');
+        });
+    }
+
+    return User.findOne({
+        '_id': decoded.id,
+        'tokens.token': token,
+        'tokens.access': 'auth'
     });
 };
 

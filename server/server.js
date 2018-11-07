@@ -1,4 +1,5 @@
 const env = process.env.NODE_ENV || 'development';
+
 console.log('ENV **********',  env);
 if (env === 'development'){
     process.env.PORT = 3000;
@@ -19,6 +20,7 @@ const {ObjectID} = require('mongodb');
 const {mongoose} = require('./db/mongoose');
 const {Todo} = require('./models/todo');
 const {User} = require('./models/user');
+const {authenticate} = ('./middleware/authenticate');
 
 var app = express();
 const PORT =  process.env.PORT;
@@ -133,13 +135,23 @@ app.post('/users', function (req, res) {
         password: body.password
     });
 
+    //save the user document to the database
    user.save().then(function () {
+       //calls the generateAuthToken which generates
+       //and saves the authentication token to the Database
+       //and returns a promise which is the generated token
        return user.generateAuthToken();
    }).then(function (token) {
      res.header('x-auth', token).send(user);  
    }).catch(function (err) {
        res.status(400).send(err);
    });
+});
+
+
+//trying out a private route
+app.get('/users/me', authenticate, function (req, res) {
+    res.send(req.user);
 });
 
 app.listen(PORT, function () {
