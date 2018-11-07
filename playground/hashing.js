@@ -6,10 +6,15 @@ let data = {
     id: 5
 };
 
-let token = JWT.sign(data, 'Yeshua');
+let access = 'auth';
+
+let token = JWT.sign({
+    data: data,
+    access: access
+}, 'Yeshua');
 console.log(token);
 
-let decoded = JWT.verify(token, 'Yeshua_a');
+let decoded = JWT.verify(token, 'Yeshua');
 console.log(decoded);
 
 // let message = 'I am user number 3';

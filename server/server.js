@@ -93,6 +93,7 @@ app.delete('/todos/:id', function (req, res) {
     });
 });
 
+//Update todos
 app.patch('/todos/:id', function (req, res) {
     let id = req.params.id;
     let body = _.pick(req.body, ['text', 'completed']);
@@ -123,6 +124,7 @@ app.patch('/todos/:id', function (req, res) {
          });
 });
 
+//Create new users and assigns tokens and access
 app.post('/users', function (req, res) {
    let body = _.pick(req.body, ['email', 'password']);
 
@@ -131,8 +133,10 @@ app.post('/users', function (req, res) {
         password: body.password
     });
 
-   user.save().then(function (user) {
-       res.send(user);
+   user.save().then(function () {
+       return user.generateAuthToken();
+   }).then(function (token) {
+     res.header('x-auth', token).send(user);  
    }).catch(function (err) {
        res.status(400).send(err);
    });
