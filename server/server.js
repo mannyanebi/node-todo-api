@@ -20,7 +20,7 @@ const {ObjectID} = require('mongodb');
 const {mongoose} = require('./db/mongoose');
 const {Todo} = require('./models/todo');
 const {User} = require('./models/user');
-const {authenticate} = ('./middleware/authenticate');
+const {authenticate} = require ('./middleware/authenticate.js');
 
 var app = express();
 const PORT =  process.env.PORT;
