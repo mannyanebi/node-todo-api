@@ -6,6 +6,7 @@ const {ObjectID} = require('mongodb')
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
+const {User} = require('./../models/user');
 const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 
 //this should run before the set of test cases in the describe block
@@ -226,6 +227,37 @@ describe('GET /users/me', function () {
                 done();
             });
     });
+});
 
-
-})
+describe('DELETE /users/me/token', function () {
+    it('should remove auth token on logout', function (done) {
+       request(app)
+            .delete('/users/me/token')
+            //.set({"x-auth": users[0].tokens[0].token})
+            //reason for mocha return 401 during test is because
+            //the custom header is not being sent, 
+            //and beleive me I dont know why
+            .set({"x-auth": users[0].tokens[0].token})
+            .expect(200)
+            .end(function (err, res) {
+                if(err){
+                    return done(err);
+                }
+            });
+            
+        User.findById(users[0]._id).then(function (user) {
+             expect(user.tokens.length).toBe(0);
+             done();
+        });
+        // .catch(function (err) {
+        //     done(err);
+        // });
+        // User.findById(users[0]._id, function (err, user) {
+        //     if(err){
+        //         return err;
+        //     }
+        //     expect(user.tokens.length).toBe(0);
+        //     done();
+        // });
+    });
+});
