@@ -1,14 +1,23 @@
 const env = process.env.NODE_ENV || 'development';
 
+// if(process.env.TESTPERMIT == 'test'){
+//     process.env.PORT = 3000;
+//     process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoAppTest';
+    
+// } else{
+//     process.env.PORT = 3000;
+//     process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoApp';
+// }
+
 console.log('ENV **********',  env);
 if (env === 'development'){
     process.env.PORT = 3000;
     process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoApp';
 } else if(env === 'test'){
     process.env.PORT = 3000;
-    process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoAppTest';
-     
+    process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoAppTest';     
 }
+
 
 //library imports
 const _ = require('lodash');
@@ -152,6 +161,15 @@ app.post('/users', function (req, res) {
 //trying out a private route
 app.get('/users/me', authenticate, function (req, res) {
     res.send(req.user);
+});
+
+//This deletes the user token when user is logging off of the route below
+app.delete('/users/me/token', authenticate, function (req, res) {
+    req.user.removeToken(req.token).then(function () {
+        res.status(200).send();
+    }).catch(function () {
+        res.status(400).send();
+    });
 });
 
 app.listen(PORT, function () {

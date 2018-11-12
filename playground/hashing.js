@@ -47,27 +47,38 @@ const Bcrypt = require('bcryptjs');
 
 let password = '123abc!';
 
-//  Bcrypt.genSalt(10).then(function (salt) {
-    //      Bcrypt.hash(password, salt).then(function (hash) {
-        //          console.log(hash);
-        //          //return hash;
-        //             return hashedPassword = hash;
-        //      });
-        //  }).catch(function (err) {
-            //      console.log(err);
-            //  });
-            
-var hashedPassword;
-Bcrypt.genSalt(10, function (err, salt) {
-    Bcrypt.hash(password, salt, function (err, hash) {
-        console.log(hash);
-        return hash;
-    });
-});
+let hashedPassword = Bcrypt.genSalt(10).then(function (salt) {
+        Bcrypt.hash(password, salt).then(function (hash) {
+             console.log('Hashed PasswordDDDD', hash);
+                return hash;
+            });
+        }).catch(function (err) {
+                console.log(err);
+            });
 
-console.log('Hashed Password is', hashedPassword);
-//  Bcrypt.compare(password, hashedPassword).then(function (res) {
-//      console.log(res)
-//  }).catch(function (err) {
-//      console.log(err);
-//  })
+
+//     Bcrypt.genSalt(10, function (err, salt) {
+//         Bcrypt.hash(password, salt, function (err, hash) {
+//             console.log(hash);
+//             hashedPassword = hash;
+//         });
+//     });
+//     console.log('Hashed Password is', hashedPassword);
+
+
+// (async function () {
+//     try {
+//         let password = await hashedPassword;
+//         password.then(function (hashh) {
+//             console.log(hashh);
+//         });
+//         // Bcrypt.compare('123abc', password).then(function (res) {
+//         //         console.log('Response is', res);
+//         //     }).catch(function (err) {
+//         //         console.log(err);
+                
+//         //     });
+//         } catch (err) {
+//             console.log(err);
+//         }
+//     })();

@@ -1,3 +1,4 @@
+// process.env.TESTPERMIT = 'test';
 
 const expect = require('expect');
 const request = require('supertest');
@@ -5,27 +6,13 @@ const {ObjectID} = require('mongodb')
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo');
-
-//creating a seed data that will be added into the database because
-//the beforeEach function removes all documents from the database
-const todos = [{
-    _id: new ObjectID(),
-    text: 'First test todo'
-}, {
-    _id: new ObjectID(),
-    text: 'Second test todo'
-}];
+const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 
 //this should run before the set of test cases in the describe block
 //What this should do is to delete all contents of the data base.
 //this executes before any it() in program.
-beforeEach(function (done) {
-    Todo.remove({}).then(function () {
-        return Todo.insertMany(todos);
-    }).then(function () {
-        done();
-    });
-});
+beforeEach(populateUsers);
+beforeEach(populateTodos);
 
 //this is a test case that test POST method of the todos route
 describe('POST /todos', function () {
@@ -206,3 +193,39 @@ describe('PATCH /todos/:id', function () {
             });
     });
 });
+
+describe('GET /users/me', function () {
+    it('should return user if authenticated', function (done) {
+        request(app)
+            .get('/users/me')
+            .set('X-Auth', users[0].tokens[0].token) //I still don't understand why I'm getting 401 instead of 200
+            .expect(200)
+            .expect(function (response) {
+                expect(response.body._id).toBe(users[0]._id.toHexString());
+                expect(response.body.email).toBe(users[0].email);
+            })
+            .end(function (err, res) {
+                if(err){
+                    return done(err);
+                }
+                done();
+            });
+    });
+    
+    it('should return 401 if not authenticated', function (done) {
+       request(app)
+            .get('/users/me')
+            .expect(401)
+            .expect(function (response) {
+                expect(response.body).toEqual({})
+            })
+            .end(function (err, res) {
+                if(err){
+                    return done(err);
+                }
+                done();
+            });
+    });
+
+
+})

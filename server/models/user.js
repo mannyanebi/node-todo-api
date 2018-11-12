@@ -91,16 +91,49 @@ UserSchema.pre('save', function (next) {
     let user = this;
 
     if (user.isModified('password')) {
-        Bcrypt.genSalt(10, function (err, salt) {
-            Bcrypt.hash(user.password, salt, function (err, hash) {
-                user.password = hash;
+        //Using callbacks
+
+        // Bcrypt.genSalt(10, function (err, salt) {
+        //     Bcrypt.hash(user.password, salt, function (err, hash) {
+        //         user.password = hash;
+        //         next();
+        //     });
+        // });
+
+        //Using promises
+        Bcrypt.genSalt(10).then(function (salt) {
+            Bcrypt.hash(user.password, salt).then(function (hash) {
+                       user.password = hash;
+                       next();
+                });
+            }).catch(function (err) {
+                    }); 
+            } else {
                 next();
-            });
-        }); 
-    } else {
-        next();
-    }
-});
+            }
+        });
+
+//Instance method to remove a token object from a user
+//This is done when the user is logging off from the system
+
+UserSchema.methods.removeToken = function (token) {
+    //this object is only useable in the function called
+    //using the function keyword and not arrow functions
+    //So this points to the user (instance of User) that calls removeToken
+    var user = this;
+
+    //this returns a promise
+    return user.update({
+        //this finds a the object that contains the search parameter
+        //given below and returns that object
+        //i.e. when you search token, it returns the tokens object
+        $pull: {
+            tokens: {
+                token: token
+            }
+        }
+    });
+}
 
 var User = mongoose.model('User', UserSchema);
 
