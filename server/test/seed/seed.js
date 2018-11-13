@@ -37,7 +37,7 @@ const users = [{
         token: JWT.sign({
             _id: userOneID,
             access: 'auth'
-        }, 'Yeshua').toString()
+        }, process.env.JWT_SECRET).toString()
     }]
     }, {
     _id: userTwoID,

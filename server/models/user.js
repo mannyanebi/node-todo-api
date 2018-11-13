@@ -56,7 +56,7 @@ UserSchema.methods.generateAuthToken = function () {
     let token = JWT.sign({
         id: user._id.toHexString(),
         access: access
-    }, 'Yeshua').toString();
+    }, process.env.JWT_SECRET).toString();
 
     user.tokens.push({
         access: access,
@@ -73,7 +73,7 @@ UserSchema.statics.findByToken =  function (token) {
     let decoded;
 
     try {
-        decoded = JWT.verify(token, 'Yeshua');
+        decoded = JWT.verify(token, process.env.JWT_SECRET);
     } catch (err) {
         return new Promise(function (resolve, reject) {
             reject('Invalid Signature');
