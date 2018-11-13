@@ -8,21 +8,25 @@ const {User} = require('./../../models/user');
 
 //creating a seed data that will be added into the database because
 //the beforeEach function removes all documents from the database
-const todos = [{
-    _id: new ObjectID(),
-    text: 'First test todo'
-}, {
-    _id: new ObjectID(),
-    text: 'Second test todo',
-    completed: true,
-    completedAt: 333
-}];
 
 //This is for users
 //creating a seed data that will be added into the database because
 //the beforeEach function removes all documents from the database
 const userOneID = new ObjectID();
 const userTwoID = new ObjectID();
+
+const todos = [{
+    _id: new ObjectID(),
+    text: 'First test todo',
+    _creator: userOneID
+}, {
+    _id: new ObjectID(),
+    text: 'Second test todo',
+    completed: true,
+    completedAt: 333,
+    _creator: userTwoID
+}];
+
 
 const users = [{
     _id: userOneID,

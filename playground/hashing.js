@@ -47,14 +47,29 @@ const Bcrypt = require('bcryptjs');
 
 let password = '123abc!';
 
-let hashedPassword = Bcrypt.genSalt(10).then(function (salt) {
+let hashedPassword = new Promise(function (resolve, reject) {
+    Bcrypt.genSalt(10).then(function (salt) {
         Bcrypt.hash(password, salt).then(function (hash) {
-             console.log('Hashed PasswordDDDD', hash);
-                return hash;
-            });
-        }).catch(function (err) {
-                console.log(err);
-            });
+            resolve(hash);
+            console.log('HashedHash', hash);
+        });
+    });
+});
+
+hashedPassword.then(function (val) {
+    console.log('Hashed Value', val);
+})
+
+// Bcrypt.genSalt(10).then(function (salt) {
+//         Bcrypt.hash(password, salt).then(function (hash) {
+//              console.log('Hashed Password', hash);
+//              return hash;
+//             }).then(function (hashed) {
+//                 console.log('*****Hashed: ', hashed)
+//             })
+//         }).catch(function (err) {
+//                 console.log(err);
+//             });
 
 
 //     Bcrypt.genSalt(10, function (err, salt) {

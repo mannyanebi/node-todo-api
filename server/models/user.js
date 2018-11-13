@@ -133,6 +133,35 @@ UserSchema.methods.removeToken = function (token) {
             }
         }
     });
+};
+
+UserSchema.statics.findByCredentials = function (email, password) {
+    //referring to the object that called this method
+    let User = this;
+
+    //returns whatever promise, either rejected or resolved
+    //first - it finds one using the email criterion
+    return User.findOne({
+        email: email
+    }).then(function (user) { //findOne always return a promise with a document either empty or with the resulting document
+        if (!user) { //if user is not found, i.e. user is false
+            return Promise.reject();
+        }
+        // if user exists, then we compare the password provided and that of the database
+        //this will either return a promise or reject if result of comparison is false or true
+        return new Promise(function (resolve, reject) {
+           Bcrypt.compare(password, user.password).then(function (res) {
+               //if the result of the comparison is true
+              if(res){
+                  //resolve promise with the user
+                resolve(user);
+              } else {
+                  //reject promise
+                reject();
+              }
+           }); 
+        });
+    });
 }
 
 var User = mongoose.model('User', UserSchema);

@@ -24,7 +24,7 @@ const _ = require('lodash');
 const express = require('express');
 const BodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
-
+const Bcrypt = require('bcryptjs');
 //local requirements
 const {mongoose} = require('./db/mongoose');
 const {Todo} = require('./models/todo');
@@ -39,9 +39,12 @@ app.use(BodyParser.json());
 
 //this sends todo data to the database 
 //creating a new todo with only a text property
-app.post('/todos', function (req, res) {
+//This authenticate middleware, now allows that 
+//a user to create todos with his id 
+app.post('/todos', authenticate, function (req, res) {
     let todo = new Todo({
-        text: req.body.text
+        text: req.body.text,
+        _creator: req.user._id
     });
 
     todo.save().then(function (document) {
@@ -51,9 +54,14 @@ app.post('/todos', function (req, res) {
     });
 });
 
-//this gets/ fetches data from the database on the /todos route
-app.get('/todos', function (req, res) {
-    Todo.find().then(function (todos) {
+//----this gets/ fetches data from the database on the /todos route
+
+//This allows only todos that have the particular user id 
+//then returns it
+app.get('/todos', authenticate, function (req, res) {
+    Todo.find({
+        _creator: req.user._id
+    }).then(function (todos) {
         res.send({
             todos: todos
         });
@@ -84,7 +92,7 @@ app.get('/todos/:id', function (req, res) {
 });
 
 //this deletes/ removes documents from the database on the /todos route using the id parameter
-app.delete('/todos/:id', function (req, res) {
+app.delete('/todos/:id', authenticate, function (req, res) {
     let id =  req.params.id;
     
     //validating the id
@@ -92,7 +100,10 @@ app.delete('/todos/:id', function (req, res) {
         return res.status(400).send();
     }
 
-    Todo.findByIdAndRemove(id).then(function (doc) {
+    Todo.findOneAndRemove({
+        _id: id,
+        _creator: req.user.id
+    }).then(function (doc) {
         if(!doc){
             res.status(404).send();
         }
@@ -105,7 +116,7 @@ app.delete('/todos/:id', function (req, res) {
 });
 
 //Update todos
-app.patch('/todos/:id', function (req, res) {
+app.patch('/todos/:id', authenticate, function (req, res) {
     let id = req.params.id;
     let body = _.pick(req.body, ['text', 'completed']);
 
@@ -121,7 +132,10 @@ app.patch('/todos/:id', function (req, res) {
         body.completedAt = null;
     }
     
-    Todo.findByIdAndUpdate(id,
+    Todo.findOneAndUpdate({
+        _id: id,
+        _creator: req.user.id
+    },
          {$set: body},
          {new: true})
          .then(function (todo) {
@@ -157,11 +171,29 @@ app.post('/users', function (req, res) {
    });
 });
 
-
+//user login into the system
 //trying out a private route
 app.get('/users/me', authenticate, function (req, res) {
     res.send(req.user);
 });
+
+app.post('/users/login', function (req, res) {
+    //We pick only the email and password as sent in the body of the request
+    let body = _.pick(req.body, ['email', 'password']);
+    
+    //we find the email and hashed password that matches the that which is stored in the database
+    User.findByCredentials(body.email, body.password).then(function (user) {
+        //if user is found and crdentials matches, we generate a token for the user
+        return user.generateAuthToken().then(function (token) {
+            //set response custom header x-auth as generated token
+            res.header('x-auth', token).send(user);
+        });
+    }).catch(function (err) {
+        res.status(404).send();
+    });
+    
+});
+
 
 //This deletes the user token when user is logging off of the route below
 app.delete('/users/me/token', authenticate, function (req, res) {

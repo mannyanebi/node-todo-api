@@ -14,27 +14,12 @@ var Todo = mongoose.model('Todo', {
     completedAt: {
         type: Number,
         default: null
+    },
+    _creator: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
     }
 });
-
-// var newTodo = new Todo({
-//     text: 'Cook dinner'
-// });
-
-// newTodo.save().then(function (document) {
-//    console.log(document); 
-// }).catch(function (err) {
-//     console.log(err);
-
-// var cookFood = new Todo({
-//     text: 'Cook Rice and Beans'
-// });
-
-// cookFood.save().then(function (document) {
-//    console.log(JSON.stringify(document, null, 2)); 
-// }).catch(function (err) {
-//     console.log(err);
-// });
 
 
 module.exports = {
